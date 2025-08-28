@@ -1,5 +1,5 @@
 let cells = Array(36).fill(null)
-
+let cell_notes = Array(36).fill(null)
 let number = null
 
 // access number selector
@@ -8,6 +8,9 @@ numText = numDisplay.children
 
 //to make sure you can only select 1 number
 let mainNumber = null
+
+// for notes mode
+let notesMode = false;
 
 
 const mainGrid = document.getElementById("main_grid")
@@ -78,6 +81,20 @@ const LINES = [
   ];
 
 
+const notesFormation = {
+    // 1: ['container'],
+    1: ["absolute", "top-0", "left-0", "text-red-600"],
+    3: ["absolute","top-0", "right-0", "text-red-600"],
+    6: ["absolute","bottom-0", "right-0", "text-red-600"]
+    // 3: [ "text-red-600"]
+}
+
+const dataPosDict = {
+    1: "top-left",
+    3: "top-right"
+}
+
+
 function renderBoard() {
     mainGrid.innerHTML = ''
     const idxSetList = Object.keys(testingSet).map(Number)
@@ -85,13 +102,13 @@ function renderBoard() {
         const btn = document.createElement('btn')
         // create dark lines
         if (right_bottom_idxs.includes(idx)) {
-            btn.className = "w-16 h-16  border border-black  border-r-4 border-b-4 flex items-center justify-center text-black font-bold"
+            btn.className = "relative w-16 h-16  border border-black  border-r-4 border-b-4 flex items-center justify-center text-black font-bold"
         } else if (right_top_idxs.includes(idx)) {
             btn.className = "w-16 h-16  border border-black  border-r-4 border-t-4 flex items-center justify-center text-black font-bold"
         } else if (left_bottom_idxs.includes(idx)) {
             btn.className = "w-16 h-16  border border-black  border-l-4 border-b-4 flex items-center justify-center text-black font-bold"
         } else if (left_top_idxs.includes(idx)){
-            btn.className = "w-16 h-16  border border-black  border-t-4 border-l-4 flex items-center justify-center text-black font-bold"
+            btn.className = "relative w-16 h-16  border border-black  border-t-4 border-l-4 flex items-center justify-center text-black font-bold"
         } else if (bottom_idxs.includes(idx)){
             btn.className = "w-16 h-16  border border-black  border-b-4 flex items-center justify-center text-black font-bold"
         } else if (top_idxs.includes(idx)) {
@@ -111,6 +128,7 @@ function renderBoard() {
             btn.classList.add("cursor-not-allowed")
             btn.classList.add("bg-grey-100")
         } else {
+            btn.dataset.index = idx
             btn.textContent = " "
             btn.addEventListener('click', addNumber) //only allowed for blank spaces
         }
@@ -132,7 +150,6 @@ function numSelector(e) {
         mainNumber = e.target
     }
   
-    console.log(mainNumber)
 }
 
 function addNumber(e) {
@@ -140,11 +157,123 @@ function addNumber(e) {
     if (mainNumber === null) {
         console.log("select a number")
     } else {
-        e.target.textContent = mainNumber.innerText
-        e.target.classList.add("text-blue-600")
-        console.log(e.target.textContent)
+        if (notesMode == false) {
+
+            if (e.target.textContent == mainNumber.innerText) {
+                e.target.textContent = " "
+            } else {
+                e.target.textContent = mainNumber.innerText
+                cells[e.target.dataset.index] = mainNumber.innerText
+                e.target.classList.add("flex", "items-center", "justify-center")
+                e.target.classList.add("text-blue-600")
+                
+            }
+            
+        } else if (notesMode == true){
+
+            if (cell_notes[e.target.dataset.index] === null) { 
+                
+                // adjust formatting for notes
+                e.target.classList.remove("flex", "items-center", "justify-center")
+                e.target.classList.remove("flex", "items-center", "justify-center")
+
+                // create notes_list
+                let notes_list = []
+                notes_list.push(mainNumber.innerText)
+
+                //display number notes section
+                const notes_div = document.createElement('div')
+                notes_div.classList.add('relative')
+                // notes_div.classList.add('inset-0')
+                // notes_div.classList.add('translate-y-2')
+                notes_list.forEach((num, idx) => {
+                    let num_child = document.createElement('p')
+                    num_child.textContent = `${num}`
+                    num_classes = notesFormation[num]
+                    num_classes.forEach((cls, idx) => {
+                        
+                        num_child.classList.add(cls)
+                        
+                    })
+                    num_child.dataset.pos = dataPosDict[num]
+                    notes_div.appendChild(num_child)
+                })
+                
+                e.target.appendChild(notes_div)
+
+                cell_notes[e.target.dataset.index] = notes_list //add notes numbers to global array
+               
+                
+            } else {
+
+                notes_list = cell_notes[e.target.dataset.index]
+
+                //removes old div since new one is created below
+                const currentDiv = e.target.querySelector("div")
+                // if (oldDiv) oldDiv.remove()
+                
+                if (notes_list.includes(mainNumber.innerText)) {
+                    notes_list.splice(mainNumber.innerText)
+
+                } else {
+                    notes_list.push(mainNumber.innerText)
+
+                    const notes_div = document.createElement('div')
+                    currentDiv.classList.add('relative')
+                    notes_list.forEach((num, idx) => {
+                        let num_child = document.createElement('p')
+                        num_child.textContent = `${num}`
+                        num_classes = notesFormation[num]
+                        num_classes.forEach((cls, idx) => {
+                        
+                            num_child.classList.add(cls)
+                            
+                        })
+                        currentDiv.appendChild(num_child)
+                    })
+                    
+                    e.target.appendChild(currentDiv)
+                }
+
+                // console.log(notes_list)
+                console.log(e.target)
+                
+                
+            }
+
+        }
+        
     }
 }
+
+//create function to add notes
+
+
+
+
+but_list = [but1, but2, but3, but4, but5, but6]
+
+function addNotes(e) {
+    e.preventDefault();
+    if (notesMode == false) {
+        notesMode = true
+        e.target.classList.add("bg-green-400")
+
+        but_list.forEach((button, idx) => {
+            button.classList.add('italic','font-light', 'text-red-600')
+        })
+
+    } else if (notesMode == true) {
+        notesMode = false
+        e.target.classList.remove("bg-green-400")
+
+        but_list.forEach((button, idx) => {
+            button.classList.remove('italic','font-light', 'text-red-600')
+        })
+    }
+    
+}
+
 
 // function checkLogic() {
 //     for (let line in LINES) {
@@ -154,7 +283,11 @@ function addNumber(e) {
 //     }
 // }
 
+// game relavent clicks below
 
+const notesButton = document.getElementById("notes_button");
+
+notesButton.addEventListener('click', addNotes)
 
 
 
