@@ -1,5 +1,10 @@
 let cells = Array(36).fill(null)
-let cell_notes = Array(36).fill(null)
+// let cell_notes = Array(36).fill(null)
+// const cell_notes = Array.from({length: 36}, () => []);
+let cell_notes = Array(36).fill(null).map(() => []);
+
+// [ [], [], [], [], [], [] ]
+
 let number = null
 
 // access number selector
@@ -94,6 +99,7 @@ const dataPosDict = {
     3: "top-right"
 }
 
+const numberOptions = [1,2,3,4,5,6]
 
 function renderBoard() {
     mainGrid.innerHTML = ''
@@ -130,7 +136,8 @@ function renderBoard() {
         } else {
             btn.dataset.index = idx
             btn.textContent = " "
-            btn.addEventListener('click', addNumber) //only allowed for blank spaces
+            btn.id = `${idx}`
+            btn.addEventListener('click', addNumbers) //only allowed for blank spaces
         }
         
         
@@ -145,12 +152,78 @@ function numSelector(e) {
 
     if (mainNumber === null) {
         mainNumber = e.target
-    } else if (e.target !== mainNumber) {
+    } else if (e.target.innerText !== mainNumber) {
         mainNumber.classList.remove("border-green-500")
         mainNumber = e.target
     }
     
 }
+
+
+
+function renderNumbers() {
+    cells.forEach((value, idx) => {
+        const button = document.getElementById(`${idx}`);
+        if (!button) return;
+
+        // reset button first
+        button.innerText = ""; // clear previous value
+        button.classList.remove("text-blue-600", "flex", "items-center", "justify-center");
+
+        if (value !== null) {
+            button.classList.add("flex", "items-center", "justify-center", "text-blue-600");
+            button.innerText = value;
+        }
+    
+    //add cell_notes for each statement
+    });
+}
+
+
+function addNumbers(e) { //this function works with the renderNumbers function to place numbers every frame based on what is in cells and cell_notes
+    // we manipuate cells and cell_notes and call rendersNumbers to run with every click
+    e.preventDefault()
+    if (mainNumber === null) {
+        console.log("select a number")
+    } else {
+        if (notesMode == false) {
+            
+            //check if cell is null, same number as main, or is a different number
+            if (cells[e.target.dataset.index] === null && cell_notes[e.target.dataset.index] === null) {
+                cells[e.target.dataset.index] = mainNumber.innerText
+            } else if (cells[e.target.dataset.index] === null && cell_notes[e.target.dataset.index] !== null) {
+                cells[e.target.dataset.index] = mainNumber.innerText
+                cell_notes[e.target.dataset.index] =  null //removing notes if we click in false notes mode
+            } else if (cells[e.target.dataset.index] === mainNumber.innerText) {
+                cells[e.target.dataset.index] = null
+            } else if (cells[e.target.dataset.index] !== null) {
+                cells[e.target.dataset.index] = null
+                cells[e.target.dataset.index] = mainNumber.innerText
+            }
+            // break down
+            console.log(cells)
+            renderNumbers()
+        } else { //notesMode = true
+            num_idx = Number(e.target.dataset.index)
+            if (cell_notes[num_idx] === null) {
+                cell_notes[num_idx].push(mainNumber.innerText)
+            } 
+            // else if (cell_notes[e.target.dataset.index] === null && cells[e.target.dataset.index] !== null) {
+
+            // }
+
+            console.log(e.target.dataset.index)
+            console.log(cell_notes)
+        }
+        
+    }
+
+
+}
+
+
+
+
 
 function addNumber(e) {
     e.preventDefault();
@@ -161,14 +234,12 @@ function addNumber(e) {
             // store main number text into new div
             
             div = e.target.querySelector('div')
-            
-            // console.log(mainNumber)
-            console.log(e.target)
+        
             
 
             if (e.target.innerText == mainNumber.innerText) {
                 e.target.textContent = " "
-            } else { //add more else ifs to remove notes numbers
+            } else if (e.target.textContent == " ") { //add more else ifs to remove notes numbers
                 const main_div = document.createElement('div')
 
                 const main_div_h = document.createElement('h1')
@@ -186,9 +257,15 @@ function addNumber(e) {
                 
                 cell_notes[e.target.dataset.index] = null //remove notes list from array
                 
-    
-                
+            } else if (cell_notes[e.target.dataset.index] !== null) {
+                cell_notes[e.target.dataset.index] === null
+                e.target.textContent = " "
+
             }
+            // else if (numberOptions.includes(e.target.textContent)) {
+            //     e.target.textContent = " "
+            //     e.target.textContent = mainNumber.innerText
+            // }
             
         } else if (notesMode == true){
 
