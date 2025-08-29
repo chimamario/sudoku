@@ -149,7 +149,7 @@ function numSelector(e) {
         mainNumber.classList.remove("border-green-500")
         mainNumber = e.target
     }
-  
+    
 }
 
 function addNumber(e) {
@@ -158,21 +158,54 @@ function addNumber(e) {
         console.log("select a number")
     } else {
         if (notesMode == false) {
+            // store main number text into new div
+            
+            div = e.target.querySelector('div')
+            
+            // console.log(mainNumber)
+            console.log(e.target)
+            
 
-            if (e.target.textContent == mainNumber.innerText) {
+            if (e.target.innerText == mainNumber.innerText) {
                 e.target.textContent = " "
-            } else {
-                e.target.textContent = mainNumber.innerText
+            } else { //add more else ifs to remove notes numbers
+                const main_div = document.createElement('div')
+
+                const main_div_h = document.createElement('h1')
+                main_div_h.textContent = `${mainNumber.innerText}`
+
+                main_div.appendChild(main_div_h)
+                // main_div.innerText = mainNumber.innerText
+                // e.target.textContent = mainNumber.innerText
+                e.target.appendChild(main_div) //instead of setting as inner text, create div so it can be removed later
+
                 cells[e.target.dataset.index] = mainNumber.innerText
                 e.target.classList.add("flex", "items-center", "justify-center")
                 e.target.classList.add("text-blue-600")
+                
+                
+                cell_notes[e.target.dataset.index] = null //remove notes list from array
+                
+    
                 
             }
             
         } else if (notesMode == true){
 
-            if (cell_notes[e.target.dataset.index] === null) { 
+            if (cell_notes[e.target.dataset.index] === null || cells[e.target.dataset.index] !== null) { 
                 
+                //remove inner text from cell initially
+                 if (cells[e.target.dataset.index] !== null) {
+                    // e.target.textContent = " "
+                    
+                    const diver = e.target.querySelector('div')
+                    const h1 = diver.querySelector('h1')
+                    if (h1) {
+                        h1.remove()
+                    }
+                    cells[e.target.dataset.index] === null
+                 }
+
                 // adjust formatting for notes
                 e.target.classList.remove("flex", "items-center", "justify-center")
                 e.target.classList.remove("flex", "items-center", "justify-center")
@@ -182,10 +215,10 @@ function addNumber(e) {
                 notes_list.push(mainNumber.innerText)
 
                 //display number notes section
-                const notes_div = document.createElement('div')
+                const notes_div = document.createElement('div') //div for all notes numbers
                 notes_div.classList.add('relative')
-                // notes_div.classList.add('inset-0')
-                // notes_div.classList.add('translate-y-2')
+                
+                //iteratre through each number, add to div and add dive to cell
                 notes_list.forEach((num, idx) => {
                     let num_child = document.createElement('p')
                     num_child.textContent = `${num}`
@@ -195,14 +228,14 @@ function addNumber(e) {
                         num_child.classList.add(cls)
                         
                     })
-                    num_child.dataset.pos = dataPosDict[num]
+                    
                     notes_div.appendChild(num_child)
                 })
                 
                 e.target.appendChild(notes_div)
 
                 cell_notes[e.target.dataset.index] = notes_list //add notes numbers to global array
-               
+                // console.log(e.target)
                 
             } else {
 
