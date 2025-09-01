@@ -162,20 +162,61 @@ function numSelector(e) {
 
 
 function renderNumbers() {
+
+    cells.forEach((value, idx) => { //first clear all cells before running through real and notes numbers
+        const button = document.getElementById(`${idx}`);
+        if (!button) return;
+        button.innerText = ""; // clear previous value
+        //remove all unique classes that distinguiah beteen notes and number
+        button.classList.remove("flex", "items-center", "justify-center")
+
+    })
     cells.forEach((value, idx) => {
         const button = document.getElementById(`${idx}`);
         if (!button) return;
 
         // reset button first
-        button.innerText = ""; // clear previous value
-        button.classList.remove("text-blue-600", "flex", "items-center", "justify-center");
+        
+        
 
         if (value !== null) {
             button.classList.add("flex", "items-center", "justify-center", "text-blue-600");
             button.innerText = value;
         }
     
-    //add cell_notes for each statement
+    cell_notes.forEach((value,idx) => {
+        const button = document.getElementById(`${idx}`);
+        if (!button) return;
+
+        const red_nums = cell_notes[idx]
+
+        if (red_nums && red_nums.length > 0) {
+
+             //remove so that we an adjust placement
+
+            
+            const redDiv = document.createElement('div')
+            redDiv.classList.add('relative')
+            
+            red_nums.forEach((num,idx) => {//iterate through each number on the list
+            const redChild = document.createElement('p')
+
+            redChild.textContent = `${num}`
+
+            red_classes = notesFormation[num] //get respective class values from number 
+            red_classes.forEach((cls, idx) => {      
+                redChild.classList.add(cls)  
+            })
+            redDiv.appendChild(redChild)
+            })
+        
+        button.appendChild(redDiv)     
+        } else {}
+
+        
+    })
+    
+    
     });
 }
 
@@ -203,17 +244,29 @@ function addNumbers(e) { //this function works with the renderNumbers function t
             // break down
             console.log(cells)
             renderNumbers()
+
         } else { //notesMode = true
+
             num_idx = Number(e.target.dataset.index)
-            if (cell_notes[num_idx] === null) {
+            if (cell_notes[num_idx] && cell_notes[num_idx].length == 0 && cells[num_idx] === null) {
                 cell_notes[num_idx].push(mainNumber.innerText)
-            } 
+            } else if (cell_notes[num_idx] && cell_notes[num_idx].length == 0 && cells[num_idx] !== null ) {
+                cells[e.target.dataset.index] = null
+                cell_notes[num_idx].push(mainNumber.innerText)
+            }
+            
+            else if (cell_notes[num_idx] && cell_notes[num_idx].includes(mainNumber.innerText)){
+                cell_notes[num_idx] = cell_notes[num_idx].filter(num => num !== mainNumber.innerText)
+            } else if (cell_notes[num_idx] && !cell_notes[num_idx].includes(mainNumber.innerText)) {
+                cell_notes[num_idx].push(mainNumber.innerText)
+            }
             // else if (cell_notes[e.target.dataset.index] === null && cells[e.target.dataset.index] !== null) {
 
             // }
 
             console.log(e.target.dataset.index)
-            console.log(cell_notes)
+            console.log(num_idx)
+            renderNumbers()
         }
         
     }
