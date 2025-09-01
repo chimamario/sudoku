@@ -89,8 +89,11 @@ const LINES = [
 const notesFormation = {
     // 1: ['container'],
     1: ["absolute", "top-0", "left-0", "text-red-600"],
+    2: ["absolute", "top-0", "left-6", "text-red-600"],
+    4: ["absolute", "top-8", "left-0", "text-red-600"],
     3: ["absolute","top-0", "right-0", "text-red-600"],
-    6: ["absolute","bottom-0", "right-0", "text-red-600"]
+    5: ["absolute", "top-8", "left-6", "text-red-600"],
+    6: ["absolute","top-8", "right-0", "text-red-600"]
     // 3: [ "text-red-600"]
 }
 
@@ -234,38 +237,36 @@ function addNumbers(e) { //this function works with the renderNumbers function t
                 cells[e.target.dataset.index] = mainNumber.innerText
             } else if (cells[e.target.dataset.index] === null && cell_notes[e.target.dataset.index] !== null) {
                 cells[e.target.dataset.index] = mainNumber.innerText
-                cell_notes[e.target.dataset.index] =  null //removing notes if we click in false notes mode
-            } else if (cells[e.target.dataset.index] === mainNumber.innerText) {
+                cell_notes[e.target.dataset.index] =  [] //removing notes if we click in false notes mode
+            } else if (cells[e.target.dataset.index] === mainNumber.innerText) { //if condition is met, there is no notes number wrt index
                 cells[e.target.dataset.index] = null
             } else if (cells[e.target.dataset.index] !== null) {
                 cells[e.target.dataset.index] = null
                 cells[e.target.dataset.index] = mainNumber.innerText
             }
             // break down
-            console.log(cells)
             renderNumbers()
 
         } else { //notesMode = true
 
             num_idx = Number(e.target.dataset.index)
             if (cell_notes[num_idx] && cell_notes[num_idx].length == 0 && cells[num_idx] === null) {
+                
                 cell_notes[num_idx].push(mainNumber.innerText)
-            } else if (cell_notes[num_idx] && cell_notes[num_idx].length == 0 && cells[num_idx] !== null ) {
+               
+            } else if (cell_notes[num_idx] && cell_notes[num_idx].length == 0 && cells[num_idx] !== null) {
                 cells[e.target.dataset.index] = null
                 cell_notes[num_idx].push(mainNumber.innerText)
             }
             
-            else if (cell_notes[num_idx] && cell_notes[num_idx].includes(mainNumber.innerText)){
+            else if (cell_notes[num_idx] && cell_notes[num_idx].includes(mainNumber.innerText)){ //remove notes number if its already there
                 cell_notes[num_idx] = cell_notes[num_idx].filter(num => num !== mainNumber.innerText)
-            } else if (cell_notes[num_idx] && !cell_notes[num_idx].includes(mainNumber.innerText)) {
+            } else if (cell_notes[num_idx] && !cell_notes[num_idx].includes(mainNumber.innerText)) { // add notes number
                 cell_notes[num_idx].push(mainNumber.innerText)
+            } else {
+                console.log('skipped all my conditions')
+
             }
-            // else if (cell_notes[e.target.dataset.index] === null && cells[e.target.dataset.index] !== null) {
-
-            // }
-
-            console.log(e.target.dataset.index)
-            console.log(num_idx)
             renderNumbers()
         }
         
