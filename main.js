@@ -17,6 +17,11 @@ let mainNumber = null
 // for notes mode
 let notesMode = false;
 
+// check if grid is complete
+let gameOver = false
+let incorrectLines = []
+let correctLines = 0
+
 
 const mainGrid = document.getElementById("main_grid")
 
@@ -97,11 +102,6 @@ const notesFormation = {
     // 3: [ "text-red-600"]
 }
 
-const dataPosDict = {
-    1: "top-left",
-    3: "top-right"
-}
-
 const numberOptions = [1,2,3,4,5,6]
 
 function renderBoard() {
@@ -136,6 +136,7 @@ function renderBoard() {
             btn.textContent = testingSet[idx]
             btn.classList.add("cursor-not-allowed")
             btn.classList.add("bg-grey-100")
+            cells[idx] = testingSet[idx]
         } else {
             btn.dataset.index = idx
             btn.textContent = " "
@@ -186,7 +187,7 @@ function renderNumbers() {
             button.classList.add("flex", "items-center", "justify-center", "text-blue-600");
             button.innerText = value;
         }
-    
+    })
     cell_notes.forEach((value,idx) => {
         const button = document.getElementById(`${idx}`);
         if (!button) return;
@@ -216,12 +217,67 @@ function renderNumbers() {
         button.appendChild(redDiv)     
         } else {}
 
+        // console.log(cells)
+    
+    
         
     })
     
+    logicChecker()
+
+    };
+
+
+function logicChecker() {
+
+    incorrectLines = []
+    correctLines = 0
+
+    LINES.forEach((line, index) => {
+
+        //get cells values thorugh line idx
+        let cellsList = []
+        line.forEach((value, idx) => {
+            cellsList.push(cells[value])
+        })
+
+        if (cellsList.includes(null)) return;
+
+        
+        
+        const seen = new Set();
+        for (const value of cellsList) {
+            if (seen.has(value)) {
+                // console.log(`duplicated value: ${value}`)
+                // console.log(`line ${index} has duplicate values`)
+                incorrectLines.push(index)
+                break;
+            } else {
+                seen.add(value)
+            }
+        }
+
+        if (seen.size == 6) {
+            correctLines = correctLines +1
+        }
+        
+    })
+
+    if (incorrectLines.length > 0) {
+        console.log(`incorrectLines List: ${incorrectLines}`)
+        //u could change class of each button for incorrect lines, then it'll reset if user changes
+        //you'll have to change classes back at begining of function (maybe give it a 2 sec timeout so that user chan be notified if error still occures)
+    } 
+
+    if (correctLines == 18) {
+        console.log('YOU COMPLETED THE GAME')
+    }
     
-    });
+
+    
+
 }
+
 
 
 function addNumbers(e) { //this function works with the renderNumbers function to place numbers every frame based on what is in cells and cell_notes
@@ -233,16 +289,16 @@ function addNumbers(e) { //this function works with the renderNumbers function t
         if (notesMode == false) {
             
             //check if cell is null, same number as main, or is a different number
-            if (cells[e.target.dataset.index] === null && cell_notes[e.target.dataset.index] === null) {
-                cells[e.target.dataset.index] = mainNumber.innerText
+            if (cells[e.target.dataset.index] === null && cell_notes[e.target.dataset.index] === null) {// should it be [] instead of null? check when other errors occur
+                cells[e.target.dataset.index] = Number(mainNumber.innerText)
             } else if (cells[e.target.dataset.index] === null && cell_notes[e.target.dataset.index] !== null) {
-                cells[e.target.dataset.index] = mainNumber.innerText
+                cells[e.target.dataset.index] = Number(mainNumber.innerText)
                 cell_notes[e.target.dataset.index] =  [] //removing notes if we click in false notes mode
-            } else if (cells[e.target.dataset.index] === mainNumber.innerText) { //if condition is met, there is no notes number wrt index
+            } else if (cells[e.target.dataset.index] === Number(mainNumber.innerText)) { //if condition is met, there is no notes number wrt index
                 cells[e.target.dataset.index] = null
             } else if (cells[e.target.dataset.index] !== null) {
                 cells[e.target.dataset.index] = null
-                cells[e.target.dataset.index] = mainNumber.innerText
+                cells[e.target.dataset.index] = Number(mainNumber.innerText)
             }
             // break down
             renderNumbers()
@@ -276,141 +332,6 @@ function addNumbers(e) { //this function works with the renderNumbers function t
 }
 
 
-
-
-
-function addNumber(e) {
-    e.preventDefault();
-    if (mainNumber === null) {
-        console.log("select a number")
-    } else {
-        if (notesMode == false) {
-            // store main number text into new div
-            
-            div = e.target.querySelector('div')
-        
-            
-
-            if (e.target.innerText == mainNumber.innerText) {
-                e.target.textContent = " "
-            } else if (e.target.textContent == " ") { //add more else ifs to remove notes numbers
-                const main_div = document.createElement('div')
-
-                const main_div_h = document.createElement('h1')
-                main_div_h.textContent = `${mainNumber.innerText}`
-
-                main_div.appendChild(main_div_h)
-                // main_div.innerText = mainNumber.innerText
-                // e.target.textContent = mainNumber.innerText
-                e.target.appendChild(main_div) //instead of setting as inner text, create div so it can be removed later
-
-                cells[e.target.dataset.index] = mainNumber.innerText
-                e.target.classList.add("flex", "items-center", "justify-center")
-                e.target.classList.add("text-blue-600")
-                
-                
-                cell_notes[e.target.dataset.index] = null //remove notes list from array
-                
-            } else if (cell_notes[e.target.dataset.index] !== null) {
-                cell_notes[e.target.dataset.index] === null
-                e.target.textContent = " "
-
-            }
-            // else if (numberOptions.includes(e.target.textContent)) {
-            //     e.target.textContent = " "
-            //     e.target.textContent = mainNumber.innerText
-            // }
-            
-        } else if (notesMode == true){
-
-            if (cell_notes[e.target.dataset.index] === null || cells[e.target.dataset.index] !== null) { 
-                
-                //remove inner text from cell initially
-                 if (cells[e.target.dataset.index] !== null) {
-                    // e.target.textContent = " "
-                    
-                    const diver = e.target.querySelector('div')
-                    const h1 = diver.querySelector('h1')
-                    if (h1) {
-                        h1.remove()
-                    }
-                    cells[e.target.dataset.index] === null
-                 }
-
-                // adjust formatting for notes
-                e.target.classList.remove("flex", "items-center", "justify-center")
-                e.target.classList.remove("flex", "items-center", "justify-center")
-
-                // create notes_list
-                let notes_list = []
-                notes_list.push(mainNumber.innerText)
-
-                //display number notes section
-                const notes_div = document.createElement('div') //div for all notes numbers
-                notes_div.classList.add('relative')
-                
-                //iteratre through each number, add to div and add dive to cell
-                notes_list.forEach((num, idx) => {
-                    let num_child = document.createElement('p')
-                    num_child.textContent = `${num}`
-                    num_classes = notesFormation[num]
-                    num_classes.forEach((cls, idx) => {
-                        
-                        num_child.classList.add(cls)
-                        
-                    })
-                    
-                    notes_div.appendChild(num_child)
-                })
-                
-                e.target.appendChild(notes_div)
-
-                cell_notes[e.target.dataset.index] = notes_list //add notes numbers to global array
-                // console.log(e.target)
-                
-            } else {
-
-                notes_list = cell_notes[e.target.dataset.index]
-
-                //removes old div since new one is created below
-                const currentDiv = e.target.querySelector("div")
-                // if (oldDiv) oldDiv.remove()
-                
-                if (notes_list.includes(mainNumber.innerText)) {
-                    notes_list.splice(mainNumber.innerText)
-
-                } else {
-                    notes_list.push(mainNumber.innerText)
-
-                    const notes_div = document.createElement('div')
-                    currentDiv.classList.add('relative')
-                    notes_list.forEach((num, idx) => {
-                        let num_child = document.createElement('p')
-                        num_child.textContent = `${num}`
-                        num_classes = notesFormation[num]
-                        num_classes.forEach((cls, idx) => {
-                        
-                            num_child.classList.add(cls)
-                            
-                        })
-                        currentDiv.appendChild(num_child)
-                    })
-                    
-                    e.target.appendChild(currentDiv)
-                }
-
-                // console.log(notes_list)
-                console.log(e.target)
-                
-                
-            }
-
-        }
-        
-    }
-}
-
-//create function to add notes
 
 
 
