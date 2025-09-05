@@ -25,21 +25,12 @@ let correctLines = 0
 
 const mainGrid = document.getElementById("main_grid")
 
-
-const but1 = document.getElementById("num_1")
-const but2 = document.getElementById("num_2")
-const but3 = document.getElementById("num_3")
-const but4 = document.getElementById("num_4")
-const but5 = document.getElementById("num_5")
-const but6 = document.getElementById("num_6")
+const numberButtons = Array.from({length:6}, (_, i) => document.getElementById(`num_${i+1}`))
+numberButtons.forEach(butt => {
+    butt.addEventListener('click', numSelector)
+})
 
 
-but1.addEventListener('click', numSelector) 
-but2.addEventListener('click', numSelector) 
-but3.addEventListener('click', numSelector) 
-but4.addEventListener('click', numSelector) 
-but5.addEventListener('click', numSelector) 
-but6.addEventListener('click', numSelector) 
 
 const right_bottom_idxs = [8,20]
 const right_top_idxs = [14,26]
@@ -335,15 +326,13 @@ function addNumbers(e) { //this function works with the renderNumbers function t
 
 
 
-but_list = [but1, but2, but3, but4, but5, but6]
-
 function addNotes(e) {
     e.preventDefault();
     if (notesMode == false) {
         notesMode = true
         e.target.classList.add("bg-green-400")
 
-        but_list.forEach((button, idx) => {
+        numberButtons.forEach((button, idx) => {
             button.classList.add('italic','font-light', 'text-red-600')
         })
 
@@ -351,7 +340,7 @@ function addNotes(e) {
         notesMode = false
         e.target.classList.remove("bg-green-400")
 
-        but_list.forEach((button, idx) => {
+        numberButtons.forEach((button, idx) => {
             button.classList.remove('italic','font-light', 'text-red-600')
         })
     }
@@ -359,15 +348,7 @@ function addNotes(e) {
 }
 
 
-// function checkLogic() {
-//     for (let line in LINES) {
-//         if (line.every(v => v !== null)) {
 
-//         }
-//     }
-// }
-
-// game relavent clicks below
 
 const notesButton = document.getElementById("notes_button");
 
