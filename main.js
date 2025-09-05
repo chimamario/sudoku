@@ -270,7 +270,9 @@ function logicChecker() {
     } 
 
     if (correctLines == 18) {
+        gameOver == true;
         console.log('YOU COMPLETED THE GAME')
+        // need to test out, and need to add visuals to front end.
     }
     
 
@@ -333,9 +335,6 @@ function addNumbers(e) { //this function works with the renderNumbers function t
 
 
 
-
-
-
 but_list = [but1, but2, but3, but4, but5, but6]
 
 function addNotes(e) {
@@ -375,5 +374,24 @@ const notesButton = document.getElementById("notes_button");
 notesButton.addEventListener('click', addNotes)
 
 
+const gameStatus = document.getElementById("end_game_status" )
 
+const statusText = document.createElement('h1')
+let w_or_l = "not complete :("
+statusText.innerText = `Game Status: ${w_or_l}`
+
+gameStatus.appendChild(statusText)
+
+function changeGameStatus() {
+    if (gameOver == false) {
+        // add if statement for if an incorrect value is in a line.
+    } else if (gameOver == true) {
+        w_or_l = "COMPLETE!!!!"
+        statusText.innerText = `Game Status: ${w_or_l}`
+        statusText.className = "text-green-600 text-xl"
+    }
+}
+
+
+changeGameStatus()
 renderBoard()
