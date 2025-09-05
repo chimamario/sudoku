@@ -1,15 +1,7 @@
 let cells = Array(36).fill(null)
-// let cell_notes = Array(36).fill(null)
-// const cell_notes = Array.from({length: 36}, () => []);
+
 let cell_notes = Array(36).fill(null).map(() => []);
 
-// [ [], [], [], [], [], [] ]
-
-let number = null
-
-// access number selector
-const numDisplay = document.getElementById("select_text")
-numText = numDisplay.children
 
 //to make sure you can only select 1 number
 let mainNumber = null
@@ -21,15 +13,6 @@ let notesMode = false;
 let gameOver = false
 let incorrectLines = []
 let correctLines = 0
-
-
-const mainGrid = document.getElementById("main_grid")
-
-const numberButtons = Array.from({length:6}, (_, i) => document.getElementById(`num_${i+1}`))
-numberButtons.forEach(butt => {
-    butt.addEventListener('click', numSelector)
-})
-
 
 
 const right_bottom_idxs = [8,20]
@@ -83,21 +66,96 @@ const LINES = [
 
 
 const notesFormation = {
-    // 1: ['container'],
     1: ["absolute", "top-0", "left-0", "text-red-600"],
     2: ["absolute", "top-0", "left-6", "text-red-600"],
     4: ["absolute", "top-8", "left-0", "text-red-600"],
     3: ["absolute","top-0", "right-0", "text-red-600"],
     5: ["absolute", "top-8", "left-6", "text-red-600"],
     6: ["absolute","top-8", "right-0", "text-red-600"]
-    // 3: [ "text-red-600"]
 }
 
 const numberOptions = [1,2,3,4,5,6]
 
+
+// access number selector
+const numDisplay = document.getElementById("select_text")
+numText = numDisplay.children
+
+//obtain mainGrid from html script
+const mainGrid = document.getElementById("main_grid") 
+
+//obtain buttons from html script
+const numberButtons = Array.from({length:6}, (_, i) => document.getElementById(`num_${i+1}`))
+numberButtons.forEach(butt => {
+    butt.addEventListener('click', numSelector)
+})
+
+const notesButton = document.getElementById("notes_button");
+
+notesButton.addEventListener('click', addNotes)
+
+
+//Game status logic
+const gameStatus = document.getElementById("end_game_status" )
+
+const statusText = document.createElement('h1')
+let w_or_l = "not complete :("
+statusText.innerText = `Game Status: ${w_or_l}`
+
+gameStatus.appendChild(statusText)
+
+function changeGameStatus() {
+    if (gameOver == false) {
+        // add if statement for if an incorrect value is in a line.
+    } else if (gameOver == true) {
+        w_or_l = "COMPLETE!!!!"
+        statusText.innerText = `Game Status: ${w_or_l}`
+        statusText.className = "text-green-600 text-xl"
+        confetti()
+        window.confetti({
+            particleCount: 500,
+            spread: 90,
+            origin: { y: 0.9 } // start a bit lower
+        });
+        // gameOverSettings()
+    }
+}
+
+function realChangeGameStatus() {
+    w_or_l = "COMPLETE!!!!"
+    statusText.innerText = `Game Status: ${w_or_l}`
+    statusText.className = "text-green-600 text-xl"
+    confetti()
+    window.confetti({
+        particleCount: 500,
+        spread: 90,
+        origin: { y: 0.9 } // start a bit lower
+    });
+    // gameOverSettings()
+    
+}
+
+
+
+
+
+  
+
+// function gameOverSettings() {
+//     cells.forEach((value) => {
+//         const btn = document.querySelector('button')
+
+//         if (btn.hasClickListener) {
+//             btn.removeEventListener('click', addNumbers)
+//         }
+        
+//     })
+// }
+
+
 function renderBoard() {
     mainGrid.innerHTML = ''
-    const idxSetList = Object.keys(testingSet).map(Number)
+    const idxSetList = Object.keys(testingSet).map(Number) //gets keys from dict and makes it into a list
     cells.forEach((value, idx) => {
         const btn = document.createElement('btn')
         // create dark lines
@@ -133,6 +191,7 @@ function renderBoard() {
             btn.textContent = " "
             btn.id = `${idx}`
             btn.addEventListener('click', addNumbers) //only allowed for blank spaces
+            btn.hasClickListener = btn.hasClickListener || false;
         }
         
         
@@ -235,7 +294,6 @@ function logicChecker() {
         if (cellsList.includes(null)) return;
 
         
-        
         const seen = new Set();
         for (const value of cellsList) {
             if (seen.has(value)) {
@@ -264,6 +322,7 @@ function logicChecker() {
         gameOver == true;
         console.log('YOU COMPLETED THE GAME')
         // need to test out, and need to add visuals to front end.
+        realChangeGameStatus()
     }
     
 
@@ -350,29 +409,8 @@ function addNotes(e) {
 
 
 
-const notesButton = document.getElementById("notes_button");
-
-notesButton.addEventListener('click', addNotes)
 
 
-const gameStatus = document.getElementById("end_game_status" )
-
-const statusText = document.createElement('h1')
-let w_or_l = "not complete :("
-statusText.innerText = `Game Status: ${w_or_l}`
-
-gameStatus.appendChild(statusText)
-
-function changeGameStatus() {
-    if (gameOver == false) {
-        // add if statement for if an incorrect value is in a line.
-    } else if (gameOver == true) {
-        w_or_l = "COMPLETE!!!!"
-        statusText.innerText = `Game Status: ${w_or_l}`
-        statusText.className = "text-green-600 text-xl"
-    }
-}
 
 
-changeGameStatus()
 renderBoard()
