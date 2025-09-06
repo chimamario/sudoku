@@ -1,5 +1,7 @@
-let cells = Array(36).fill(null)
+import {getLevelSet} from "./db.js"
 
+
+let cells = Array(36).fill(null)
 let cell_notes = Array(36).fill(null).map(() => []);
 
 
@@ -35,6 +37,17 @@ const testingSet = {
     26:6,
     34:5,
     35:6
+}
+
+let levelSet = null;
+
+async function getSet() {
+    try {
+        levelSet = await getLevelSet(2);
+        console.log("Loaded level:", levelSet);
+    } catch (err) {
+        console.error("Could not load level:", err.message);
+    }
 }
 
 //check if sudoku logic is sound
@@ -79,7 +92,7 @@ const numberOptions = [1,2,3,4,5,6]
 
 // access number selector
 const numDisplay = document.getElementById("select_text")
-numText = numDisplay.children
+// numText = numDisplay.children
 
 //obtain mainGrid from html script
 const mainGrid = document.getElementById("main_grid") 
@@ -153,9 +166,10 @@ function realChangeGameStatus() {
 // }
 
 
-function renderBoard() {
+function renderBoard(levelSet) {
     mainGrid.innerHTML = ''
-    const idxSetList = Object.keys(testingSet).map(Number) //gets keys from dict and makes it into a list
+    console.log(levelSet)
+    const idxSetList = Object.keys(levelSet).map(Number) //gets keys from dict and makes it into a list
     cells.forEach((value, idx) => {
         const btn = document.createElement('btn')
         // create dark lines
@@ -182,10 +196,10 @@ function renderBoard() {
 
         //add initial numbers or leave empty
         if (idxSetList.includes(idx)) {
-            btn.textContent = testingSet[idx]
+            btn.textContent = levelSet[idx]
             btn.classList.add("cursor-not-allowed")
             btn.classList.add("bg-grey-100")
-            cells[idx] = testingSet[idx]
+            cells[idx] = levelSet[idx]
         } else {
             btn.dataset.index = idx
             btn.textContent = " "
@@ -257,7 +271,7 @@ function renderNumbers() {
 
             redChild.textContent = `${num}`
 
-            red_classes = notesFormation[num] //get respective class values from number 
+            let red_classes = notesFormation[num] //get respective class values from number 
             red_classes.forEach((cls, idx) => {      
                 redChild.classList.add(cls)  
             })
@@ -272,7 +286,7 @@ function renderNumbers() {
     
         
     })
-    
+    console.log(cells)
     logicChecker()
 
     };
@@ -280,6 +294,7 @@ function renderNumbers() {
 
 function logicChecker() {
 
+    //you might have to adjust logic checker to immediately detect if there is a conflict
     incorrectLines = []
     correctLines = 0
 
@@ -356,8 +371,8 @@ function addNumbers(e) { //this function works with the renderNumbers function t
             renderNumbers()
 
         } else { //notesMode = true
-
-            num_idx = Number(e.target.dataset.index)
+            
+            let num_idx = Number(e.target.dataset.index)
             if (cell_notes[num_idx] && cell_notes[num_idx].length == 0 && cells[num_idx] === null) {
                 
                 cell_notes[num_idx].push(mainNumber.innerText)
@@ -412,5 +427,6 @@ function addNotes(e) {
 
 
 
+await getSet()
 
-renderBoard()
+renderBoard(levelSet)
